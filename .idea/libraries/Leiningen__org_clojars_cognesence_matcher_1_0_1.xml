@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Leiningen: org.clojars.cognesence/matcher:1.0.1">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/clojars/cognesence/matcher/1.0.1/matcher-1.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
