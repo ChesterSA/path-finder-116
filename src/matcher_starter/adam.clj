@@ -16,13 +16,14 @@
 (defn get-at [x y matrix]
   (nth (nth matrix y) x))
 
-(defn get-first-column ([matrix]
-                        (cond (= () first(matrix))
-                         nil
-  :else
-  (get-first-column matrix (first matrix))
-                         [matrix lis]
-                              (first(lis)))))
+(defn get-cols [matrix]
+  (cond
+    (first (= () matrix))
+    nil
+    :else
+    (cons (first matrix)
+          (get-cols(rest matrix)))))
+
 
 
 
