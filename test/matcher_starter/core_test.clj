@@ -1,6 +1,6 @@
 (ns matcher-starter.core-test
   (:require [clojure.test :refer :all]
-            [matcher-starter.core :refer :all]))
+            [matcher-starter.TANC :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."

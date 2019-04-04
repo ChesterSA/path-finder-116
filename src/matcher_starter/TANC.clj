@@ -1,4 +1,4 @@
-(ns matcher-starter.core
+(ns matcher-starter.TANC
   (:require [org.clojars.cognesence.breadth-search.core :refer :all]
             [org.clojars.cognesence.matcher.core :refer :all]
             [org.clojars.cognesence.ops-search.core :refer :all]))
@@ -71,9 +71,6 @@
       2)
     ))
 
-;(defn get-up-pos [matrix y]
-;  (if (= y 0) ))
-
 (defn traverse
   ([matrix]
     (traverse matrix 0 0))
@@ -109,8 +106,8 @@
        (range (- (count (first matrix)) 1))
        ))
 
-(defn shortest-path [matrix]
+(defn min-weight-path [matrix]
   (apply min-key :total (all-paths matrix)))
 
 (defn path-finder [row col numbers]
-  (shortest-path (make-matrix row col numbers)))
+  (min-weight-path (make-matrix row col numbers)))
