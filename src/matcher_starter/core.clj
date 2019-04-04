@@ -100,4 +100,17 @@
    (flatten mess)
    :total
    (reduce + (flatten mess))
-   })
+   }
+   )
+
+(defn all-paths [matrix]
+  (map
+       #(output(traverse matrix 0 %))
+       (range (- (count (first matrix)) 1))
+       ))
+
+(defn shortest-path [matrix]
+  (apply min-key :total (all-paths matrix)))
+
+(defn path-finder [row col numbers]
+  (shortest-path (make-matrix row col numbers)))
