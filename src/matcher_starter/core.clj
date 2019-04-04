@@ -10,6 +10,13 @@
                3 7 2 8 6 4
                ))
 
+(def wrap '(3 4 1 2 8 6
+            6 1 8 2 7 4
+            5 9 3 9 9 5
+            8 4 1 3 2 6
+            3 7 2 1 2 3
+            ))
+
 (defn make-matrix [row col numbers]
   (cond
     (= 0 row)
@@ -18,25 +25,31 @@
     (cons (take col numbers)
          (make-matrix (- row 1) col (drop col numbers)))))
 
-
 (def matrix (make-matrix 5 6 numbers))
+(def matrix-wrap (make-matrix 5 6 wrap))
+
+(defn getx [coord]
+  (first coord))
+
+(defn gety [coord]
+  (first (rest coord)))
 
 (defn get-at [matrix x y]
   (nth (nth matrix y) x))
 
 (defn move-up-right [matrix x y]
 (if (= y 0)
-  (get-at (+ x 1) (- (count matrix) 1) matrix)
-  (get-at (+ x 1)  (- y 1) matrix) )
+  (list (+ x 1) (- (count matrix) 1))
+  (list  (+ x 1)  (- y 1)) )
   )
 
 (defn move-right [matrix x y]
-  (get-at (+ x 1) y matrix))
+  (list (+ x 1) y))
 
 (defn move-down-right [matrix x y]
   (if (= y (- (count matrix) 1))
-    (get-at (+ x 1) 0 matrix)
-    (get-at (+ x 1) (+ y 1) matrix))
+    (list (+ x 1) 0)
+    (list(+ x 1) (+ y 1)))
   )
 
 (defn sum-from-pos [matrix x y]
@@ -58,21 +71,27 @@
       2)
     ))
 
+;(defn get-up-pos [matrix y]
+;  (if (= y 0) ))
+
 (defn traverse
   ([matrix]
     (traverse matrix 0 0))
   ([matrix x y]
     (cond
       (= x (count matrix))
-      (get-at matrix x y)
+        (get-at matrix x y)
       :else
-      (let [value (compare-three (sum-from-pos matrix x (- y 1))
-                                 (sum-from-pos matrix x y)
-                                 (sum-from-pos matrix x (+ y 1)))]
+      (let [up (move-up-right matrix x y)
+            right (move-right matrix x y)
+            down (move-down-right matrix x y)
+            value (compare-three (sum-from-pos matrix (getx up) (gety up))
+                                 (sum-from-pos matrix (getx right) (gety right))
+                                 (sum-from-pos matrix (getx down) (gety down)))]
         (list (get-at matrix x y) (case value
-                                    0 (traverse matrix (+ x 1) (- y 1))
-                                    1 (traverse matrix (+ x 1) y)
-                                    2 (traverse matrix (+ x 1) (+ y 1)))))
+                                    0 (traverse matrix (+ x 1) (gety up))
+                                    1 (traverse matrix (+ x 1) (gety right))
+                                    2 (traverse matrix (+ x 1) (gety down)))))
     )))
 
 (defn output [mess]
