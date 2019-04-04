@@ -72,8 +72,6 @@
     ))
 
 (defn traverse
-  ([matrix]
-   (traverse matrix 0 0))
   ([matrix x y]
    (cond
      (= x (count matrix))
@@ -82,9 +80,9 @@
      (let [up (move-up-right matrix x y)
            right (move-right matrix x y)
            down (move-down-right matrix x y)
-           value (compare-three (sum-from-pos matrix (getx up) (gety up))
-                                (sum-from-pos matrix (getx right) (gety right))
-                                (sum-from-pos matrix (getx down) (gety down)))]
+           value (compare-three (get-at matrix (getx up) (gety up))
+                                (get-at matrix (getx right) (gety right))
+                                (get-at matrix (getx down) (gety down)))]
        (list (get-at matrix x y) (case value
                                    0 (traverse matrix (+ x 1) (gety up))
                                    1 (traverse matrix (+ x 1) (gety right))

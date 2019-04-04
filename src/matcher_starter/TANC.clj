@@ -72,8 +72,6 @@
     ))
 
 (defn traverse
-  ([matrix]
-    (traverse matrix 0 0))
   ([matrix x y]
     (cond
       (= x (count matrix))
