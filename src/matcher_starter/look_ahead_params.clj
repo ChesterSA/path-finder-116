@@ -26,15 +26,8 @@
     :else
     (cons (take col numbers)
           (make-matrix (- row 1) col (drop col numbers)))))
-
-
-(def one-row (make-matrix 1 6 '(3 4 1 6 7 4)))
-
-(def two-row (make-matrix 3 7 '(3 5 4 6 3 5 7
-                                 4 3 5 7 8 5 4
-                                 4 3 6 7 5 7 8)))
-
-(def matrix (make-matrix 6 5 numbers))
+  
+(def matrix (make-matrix 5 6 numbers))
 (def matrix-wrap (make-matrix 5 6 wrap))
 
 (defn getx [coord]
@@ -72,8 +65,21 @@
       2)
     ))
 
+
+
+(defn look-ahead [matrix x y num]
+  (if (or (= num 0) (= x (dec (count (first matrix)))))
+    (get-at matrix x y)
+    (let [up (move-up-right matrix x y)
+          right (move-right x y)
+          down (move-down-right matrix x y)]
+      (+ (get-at matrix x y)
+         (apply min(list (look-ahead matrix (getx up) (gety up) (dec num))
+                  (look-ahead matrix (getx right) (gety right) (dec num))
+                  (look-ahead matrix (getx down) (gety down) (dec num))))))))
+
 (defn traverse
-  ([matrix x y]
+  ([matrix x y num]
    (cond
      (= x (dec (count (first matrix))))
      (get-at matrix x y)
@@ -81,33 +87,33 @@
      (let [up (move-up-right matrix x y)
            right (move-right x y)
            down (move-down-right matrix x y)
-           value (compare-three (get-at matrix (getx up) (gety up))
-                                (get-at matrix (getx right) (gety right))
-                                (get-at matrix (getx down) (gety down)))]
+           value (compare-three (look-ahead matrix (getx up) (gety up) num)
+                                (look-ahead matrix (getx right) (gety right) num)
+                                (look-ahead matrix (getx down) (gety down)num))]
        (list (get-at matrix x y) (case value
-                                   0 (traverse matrix (inc x) (gety up))
-                                   1 (traverse matrix (inc x) (gety right))
-                                   2 (traverse matrix (inc x) (gety down))))))
+                                   0 (traverse matrix (inc x) (gety up) num)
+                                   1 (traverse matrix (inc x) (gety right) num)
+                                   2 (traverse matrix (inc x) (gety down) num)))))
      ))
 
-(defn output [mess]
-  (println mess)
+
+(defn output [path]
   {
    :path
-   (flatten mess)
+   (flatten path)
    :total
-   (reduce + (flatten mess))
+   (reduce + (flatten path))
    }
   )
 
-(defn all-paths [matrix]
+(defn all-paths [matrix num]
   (map
-    #(output(traverse matrix 0 %))
+    #(output(traverse matrix 0 % num))
     (range (count  matrix))
     ))
 
-(defn min-weight-path [matrix]
-  (apply min-key :total (all-paths matrix)))
+(defn min-weight-path [matrix num]
+  (apply min-key :total (all-paths matrix num)))
 
-(defn path-finder [row col numbers]
-  (min-weight-path (make-matrix row col numbers)))
+(defn path-finder [row col numbers num]
+  (min-weight-path (make-matrix row col numbers) num))
