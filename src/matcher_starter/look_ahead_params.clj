@@ -3,6 +3,8 @@
             [org.clojars.cognesence.matcher.core :refer :all]
             [org.clojars.cognesence.ops-search.core :refer :all]))
 
+(use 'org.clojars.cognesence.matcher.core)
+
 (def numbers '(3 4 1 2 8 6
                6 1 8 2 7 4
                5 9 3 9 9 5
@@ -25,7 +27,14 @@
     (cons (take col numbers)
           (make-matrix (- row 1) col (drop col numbers)))))
 
-(def matrix (make-matrix 5 6 numbers))
+
+(def one-row (make-matrix 1 6 '(3 4 1 6 7 4)))
+
+(def two-row (make-matrix 3 7 '(3 5 4 6 3 5 7
+                                 4 3 5 7 8 5 4
+                                 4 3 6 7 5 7 8)))
+
+(def matrix (make-matrix 6 5 numbers))
 (def matrix-wrap (make-matrix 5 6 wrap))
 
 (defn getx [coord]
@@ -43,7 +52,7 @@
     (list  (+ x 1)  (- y 1)) )
   )
 
-(defn move-right [matrix x y]
+(defn move-right [x y]
   (list (+ x 1) y))
 
 (defn move-down-right [matrix x y]
@@ -51,9 +60,6 @@
     (list (+ x 1) 0)
     (list(+ x 1) (+ y 1)))
   )
-
-(defn move [matrix x y fn]
-    (fn matrix x y))
 
 (defn compare-three [a b c]
   (let [val (min a b c)]
@@ -69,13 +75,12 @@
 (defn traverse
   ([matrix x y]
    (cond
-     (= x (count matrix))
+     (= x (dec (count (first matrix))))
      (get-at matrix x y)
      :else
-     (do (println "move from " x ", " y " val:" (get-at matrix x y))
-     (let [up (move matrix x y move-up-right)
-           right (move matrix x y move-right)
-           down (move matrix x y move-down-right)
+     (let [up (move-up-right matrix x y)
+           right (move-right x y)
+           down (move-down-right matrix x y)
            value (compare-three (get-at matrix (getx up) (gety up))
                                 (get-at matrix (getx right) (gety right))
                                 (get-at matrix (getx down) (gety down)))]
@@ -83,7 +88,7 @@
                                    0 (traverse matrix (inc x) (gety up))
                                    1 (traverse matrix (inc x) (gety right))
                                    2 (traverse matrix (inc x) (gety down))))))
-     )))
+     ))
 
 (defn output [mess]
   (println mess)
@@ -98,7 +103,7 @@
 (defn all-paths [matrix]
   (map
     #(output(traverse matrix 0 %))
-    (range (- (count (first matrix)) 1))
+    (range (count  matrix))
     ))
 
 (defn min-weight-path [matrix]

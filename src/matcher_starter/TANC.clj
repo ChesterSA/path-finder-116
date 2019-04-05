@@ -25,8 +25,13 @@
     (cons (take col numbers)
          (make-matrix (- row 1) col (drop col numbers)))))
 
+(def one-row (make-matrix 1 6 '(3 4 1 6 7 4)))
+
+(def two-row (make-matrix 3 7 '(3 5 4 6 3 5 7
+                                 4 3 5 7 8 5 4
+                                 4 3 6 7 5 7 8)))
 (def matrix (make-matrix 5 6 numbers))
-(def matrix-wrap (make-matrix 5 6 wrap))
+(def matrix-wrap (make-matrix 6 5 wrap))
 
 (defn getx [coord]
   (first coord))
@@ -43,7 +48,7 @@
   (list  (+ x 1)  (- y 1)) )
   )
 
-(defn move-right [matrix x y]
+(defn move-right [x y]
   (list (+ x 1) y))
 
 (defn move-down-right [matrix x y]
@@ -54,7 +59,7 @@
 
 (defn sum-from-pos [matrix x y]
   (cond
-    (= x (count matrix))
+    (= x (dec (count (first matrix))))
     (get-at matrix x y)
     :else
     (reduce + (list (get-at matrix x y) (sum-from-pos matrix (+ x 1) y))))
@@ -73,12 +78,12 @@
 
 (defn traverse
   ([matrix x y]
-    (cond
-      (= x (count matrix))
+   (cond
+     (= x (dec (count (first matrix))))
         (get-at matrix x y)
       :else
       (let [up (move-up-right matrix x y)
-            right (move-right matrix x y)
+            right (move-right x y)
             down (move-down-right matrix x y)
             value (compare-three (sum-from-pos matrix (getx up) (gety up))
                                  (sum-from-pos matrix (getx right) (gety right))
@@ -100,9 +105,9 @@
 
 (defn all-paths [matrix]
   (map
-       #(output(traverse matrix 0 %))
-       (range (- (count (first matrix)) 1))
-       ))
+    #(output(traverse matrix 0 %))
+    (range (count  matrix))
+    ))
 
 (defn min-weight-path [matrix]
   (apply min-key :total (all-paths matrix)))
