@@ -1,9 +1,10 @@
-(ns matcher-starter.dijkstra
+(ns matcher-starter.dijkstra-loop
   (:require [org.clojars.cognesence.breadth-search.core :refer :all]
             [org.clojars.cognesence.matcher.core :refer :all]
             [org.clojars.cognesence.ops-search.core :refer :all]))
 
-(require '[matcher-starter.priority-map :refer [priority-map priority-map-keyfn]])
+(require '[matcher-starter.priority_map :refer [priority-map priority-map-keyfn]])
+(require '[clojure.string :as str])
 
 ; '''Modification of Djikstra''' [[Media:https://www.ummels.de/2014/06/08/dijkstra-in-clojure/]]
 (use 'org.clojars.cognesence.matcher.core)
@@ -31,8 +32,12 @@
 (def matrix (make-matrix 5 6 numbers))
 (def small (make-matrix 3 3 smallnum))
 
-(defn get-at [matrix x y]
+(defn get-at
+  ([matrix x y]
   (nth (nth matrix y) x))
+  ([matrix coord]
+  (let [coords (str/split coord #"-")]
+    (get-at matrix (Integer/parseInt (first coords)) (Integer/parseInt (first (rest coords)))))))
 
 (defn get-id [x y]
   (str x "-" y))
@@ -125,24 +130,35 @@
   "Convert a list of nodes and a list of edges into an
   adjacency list structure.  For example: with N [1 2 3],
   E [[1 2] [2 3] [1 3]], the result is {1 [2 3], 2 [3], 3 []}"
-  [Nodes Edges]
-  (let [init-graph (reduce merge (map #(hash-map %1 {}) Nodes))]
+  [nodes edges]
+  (let [init-graph (reduce merge (map #(hash-map %1 {}) nodes))]
     (reduce #(merge-with merge %1 %2)
             init-graph
-            (map #(hash-map (nth % 0) (hash-map (nth % 1) (nth % 2))) Edges))))
+            (map #(hash-map (nth % 0) (hash-map (nth % 1) (nth % 2))) edges))))
 
-(defn path-to [goal dik]
-  (if (contains? dik goal)
-    (reverse (take-while identity (iterate (comp second dik) goal)))
+(defn path-to [goal dijk]
+  (if (contains? dijk goal)
+    (reverse (take-while identity (iterate (comp second dijk) goal)))
     nil))
 
-(defn cost-to [goal dik]
-  (if (contains? dik goal)
-    (first (dik goal))
+(defn improve-path [matrix path]
+  (map #(get-at matrix %) path))
+
+(defn cost-to [goal dijk]
+  (if (contains? dijk goal)
+    (first (dijk goal))
     -1))
 
-(defn path-finder [matrix start dest]
+(defn path-finder-old [matrix start dest]
   (let [graph (make-adj-list (make-nodes matrix) (make-edges matrix))
-        dij (dijkstra start graph)]
-    {:cost (cost-to dest dij)
-     :path (path-to dest dij)}))
+        dijk (dijkstra start graph)]
+    {:total (cost-to dest dijk)
+     :path (improve-path matrix (path-to dest dijk))}))
+
+(defn get-start-end [row col matrix]
+  (for [i (range 0 row)]
+    [(for [j (range 0 row)]
+                    (path-finder-old matrix (get-id 0 i) (get-id (dec col) j)))]))
+
+(defn path-finder [row col numbers]
+  (apply min-key :total (flatten (get-start-end row col (make-matrix2 col numbers)))))

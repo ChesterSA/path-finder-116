@@ -18,6 +18,7 @@
             ))
 
 (defn make-matrix [row col numbers]
+  "forms a nested list with row*col dimensions"
   (cond
     (= 0 row)
       nil
@@ -25,15 +26,8 @@
     (cons (take col numbers)
          (make-matrix (- row 1) col (drop col numbers)))))
 
-(def one-row (make-matrix 1 6 '(3 4 1 6 7 4)))
-
-(def two-row (make-matrix 3 7 '(3 5 4 6 3 5 7
-                                 4 3 5 7 8 5 4
-                                 4 3 6 7 5 7 8)))
-(def matrix (make-matrix 5 6 numbers))
-(def matrix-wrap (make-matrix 6 5 wrap))
-
 (defn getx [coord]
+  "Gets the x coordinate from a (x y) coord list"
   (first coord))
 
 (defn gety [coord]
