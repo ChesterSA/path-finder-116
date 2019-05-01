@@ -16,9 +16,8 @@
                 3 7 2 8 6 4
                 ))
 
-(def smallnum '(1 2 3 4 5 6 7 8 9))
-
 (defn make-matrix [row col numbers]
+  "forms a nested list with row*col dimensions"
   (cond
     (= 0 row)
     nil
@@ -27,12 +26,14 @@
           (make-matrix (- row 1) col (drop col numbers)))))
 
 (defn make-matrix2 [col numbers]
+  "forms a nested list with row*col dimensions, uses clojure partition"
   (partition col numbers))
 
 (def matrix (make-matrix 5 6 numbers))
-(def small (make-matrix 3 3 smallnum))
 
 (defn get-at
+  "Returns the number in the matrix at a specified position
+  Coordinates can be in 5 6, or \"5-6\" format"
   ([matrix x y]
   (nth (nth matrix y) x))
   ([matrix coord]
@@ -40,9 +41,11 @@
     (get-at matrix (Integer/parseInt (first coords)) (Integer/parseInt (first (rest coords)))))))
 
 (defn get-id [x y]
+  "Turns x y into \"x-y\" format"
   (str x "-" y))
 
 (defn make-edge [matrix start finish]
+  "Given two coord values, returns a map representing their edge"
   (let [start-x (first start)
         start-y (second start)
         finish-x (first finish)
@@ -50,26 +53,33 @@
     [(get-id start-x start-y) (get-id finish-x finish-y) (get-at matrix finish-x finish-y)]))
 
 (defn move-up-right [matrix x y]
+  "returns the coordinate when move up-right from x,y.
+  Wraps if necessary"
   (if (= y 0)
     (list (+ x 1) (- (count matrix) 1))
     (list  (+ x 1)  (- y 1)) )
   )
 
 (defn move-right [x y]
+  "returns the coordinate when move right from x,y."
   (list (+ x 1) y))
 
 (defn move-down-right [matrix x y]
+  "returns the coordinate when move down-right from x,y.
+  Wraps if necessary"
   (if (= y (- (count matrix) 1))
     (list (+ x 1) 0)
     (list(+ x 1) (+ y 1)))
   )
 
 (defn make-three-edges [matrix x y]
+  "Generates the edges for all three potential moves from cell x,y"
   (list (make-edge matrix (list x y) (move-up-right matrix x y))
    (make-edge matrix (list x y) (move-right x y))
    (make-edge matrix (list x y) (move-down-right matrix x y))))
 
 (defn make-node-list
+  "Makes a list of all the nodes in the matrix given"
   [x y finalx finaly]
     (cond
       (and (= x finalx) (= y finaly))
@@ -80,9 +90,11 @@
         (list (get-id x y) (make-node-list (inc x) y finalx finaly))))
 
 (defn make-nodes [matrix]
+  "formats the given list of nodes into a flattened map"
   (into [] (flatten (make-node-list 0 0 (dec (count (first matrix))) (dec (count matrix))))))
 
 (defn make-edge-list
+  "generates a badly formatted list of all edges in the matrix"
   [matrix x y finalx finaly]
   (cond
     (and (= x finalx) (= y finaly))
@@ -93,11 +105,11 @@
       (list (make-edge matrix (list x y) (move-up-right matrix x y)) (make-edge matrix (list x y) (move-right x y)) (make-edge matrix (list x y) (move-down-right matrix x y)) (make-edge-list matrix (inc x) y finalx finaly))))
 
 (defn make-edges [matrix]
+  "formats the list of edges into groups of three needed"
   (partition 3 (flatten (make-edge-list matrix 0 0 (- (count (first matrix)) 2) (dec (count matrix))))))
 
-
-
 (defn map-vals [m f]
+
   (into {} (for [[k v] m]
              [k (f v)])))
 
@@ -137,28 +149,34 @@
             (map #(hash-map (nth % 0) (hash-map (nth % 1) (nth % 2))) edges))))
 
 (defn path-to [goal dijk]
+  "Returns the given path from start to goal"
   (if (contains? dijk goal)
     (reverse (take-while identity (iterate (comp second dijk) goal)))
     nil))
 
 (defn improve-path [matrix path]
+  "formats the path into the output the spec wants"
   (map #(get-at matrix %) path))
 
 (defn cost-to [goal dijk]
+  "Returns the cost of the best pth from start to goal"
   (if (contains? dijk goal)
     (first (dijk goal))
     -1))
 
 (defn path-finder-old [matrix start dest]
+  "Returns the list of all potential paths in the matrix, from start col to end col"
   (let [graph (make-adj-list (make-nodes matrix) (make-edges matrix))
         dijk (dijkstra start graph)]
     {:total (cost-to dest dijk)
      :path (improve-path matrix (path-to dest dijk))}))
 
 (defn get-start-end [row col matrix]
+  "gets the list of start and end nodes for the matrix given"
   (for [i (range 0 row)]
     [(for [j (range 0 row)]
                     (path-finder-old matrix (get-id 0 i) (get-id (dec col) j)))]))
 
 (defn path-finder [row col numbers]
+  "returns the total and path for the matrix given"
   (apply min-key :total (flatten (get-start-end row col (make-matrix2 col numbers)))))

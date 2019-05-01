@@ -9,11 +9,11 @@
 ;                        8 4 1 3 2 6
 ;                        3 7 2 8 6 4))
 (def numbers '(3 4 1 2 8 6
-               6 1 8 2 7 4
-               5 9 3 9 9 5
-               8 4 1 3 2 6
-               3 7 2 8 6 4
-))
+                6 1 8 2 7 4
+                5 9 3 9 9 5
+                8 4 1 3 2 6
+                3 7 2 8 6 4
+                ))
 
 (defn make-matrix [row col numbers]
   (cond
@@ -44,11 +44,11 @@
   )
 
 (defn get-possible-paths [current-x, current-y, matrix]
-    ;Helper function that uses the path variable functions
-    ;to build a list of possible routes.
-    [(get-top-path matrix current-x current-y)
-     (get-middle-path matrix current-x current-y)
-     (get-bottom-path matrix current-x current-y)])
+  ;Helper function that uses the path variable functions
+  ;to build a list of possible routes.
+  [(get-top-path matrix current-x current-y)
+   (get-middle-path matrix current-x current-y)
+   (get-bottom-path matrix current-x current-y)])
 
 (defn compare-three [lis]
   (let [val (apply min lis)]
@@ -65,7 +65,7 @@
   (cond
     (< y 0) (+ (count (matrix)) 1)
     (= (count matrix) y) 0)
-    :else y)
+  :else y)
 
 (defn traverse
   ([rows, columns, matrix]
@@ -85,3 +85,6 @@
        (recur matrix (+ current-x 1) next-y  (+ total next-value) (cons next-value path)))
      ))
   )
+
+(defn path-finder [row col numbers]
+  (traverse row col numbers))
