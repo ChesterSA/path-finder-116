@@ -3,6 +3,8 @@
             [org.clojars.cognesence.matcher.core :refer :all]
             [org.clojars.cognesence.ops-search.core :refer :all]))
 
+(use 'org.clojars.cognesence.matcher.core)
+
 (def numbers '(3 4 1 2 8 6
                6 1 8 2 7 4
                5 9 3 9 9 5
@@ -123,3 +125,13 @@
   "generates a matrix of dimensions row*col,
   then returns the shortest path and cost of that path"
   (min-weight-path (make-matrix row col numbers)))
+
+(defn tester [tests]
+  (mfor ['(?id ?test => ?res) tests]
+        (if-not (= (eval ?test) (eval ?res))
+          (println (mout
+                     '(FAILED ?id ?test => ?res)))))
+
+(def matrix-tests
+  '([matrix-20 (path-finder 5 4 '(7 2 7 10 7 5 7 10 5 8 4 2 1 4 3 3 9 8 5 9)) => {:path (1 4 4 2), :total 11}]
+     ))
