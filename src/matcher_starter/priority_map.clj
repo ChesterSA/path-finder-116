@@ -4,9 +4,9 @@
 ;; by Mark Engelberg (mark.engelberg@gmail.com)
 ;; Last update - July 9, 2018
 
-(ns matcher-starter.priority-map
+(ns matcher-starter.priority_map
   ^{:author "Mark Engelberg",
-    :doc "A priority map is very similar to a sorted map, but whereas a sorted map produces a
+    :doc    "A priority map is very similar to a sorted map, but whereas a sorted map produces a
 sequence of the entries sorted by key, a priority map produces the entries sorted by value.
 In addition to supporting all the functions a sorted map supports, a priority map
 can also be thought of as a queue of [item priority] pairs.  To support usage as
@@ -196,7 +196,9 @@ All in all, I hope you will find priority maps to be an easy-to-use and useful a
 to Clojure's assortment of built-in maps (hash-map and sorted-map).
 "}
   (:refer-clojure :exclude [subseq rsubseq])
-  (:import clojure.lang.MapEntry java.util.Map clojure.lang.PersistentTreeMap))
+  (:import clojure.lang.MapEntry
+           java.util.Map
+           clojure.lang.PersistentTreeMap))
 
 (declare pm-empty)
 
@@ -360,14 +362,14 @@ to Clojure's assortment of built-in maps (hash-map and sorted-map).
                 (hash-unordered-coll this)
                 (.hashCode this)))
 
-  java.io.Serializable  ;Serialization comes for free with the other things implemented
+  java.io.Serializable                                      ;Serialization comes for free with the other things implemented
   clojure.lang.MapEquivalence
-  Map ;Makes this compatible with java's map
+  Map                                                       ;Makes this compatible with java's map
   (size [this] (count item->priority))
   (isEmpty [this] (zero? (count item->priority)))
   (containsValue [this v]
     (if keyfn
-      (some (partial = v) (vals this)) ; no shortcut if there is a keyfn
+      (some (partial = v) (vals this))                      ; no shortcut if there is a keyfn
       (contains? priority->set-of-items v)))
   (get [this k] (.valAt this k))
   (put [this k v] (throw (UnsupportedOperationException.)))

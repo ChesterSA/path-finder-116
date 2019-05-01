@@ -18,6 +18,7 @@
             ))
 
 (defn make-matrix [row col numbers]
+  "forms a nested list with row*col dimensions"
   (cond
     (= 0 row)
       nil
@@ -25,39 +26,40 @@
     (cons (take col numbers)
          (make-matrix (- row 1) col (drop col numbers)))))
 
-(def one-row (make-matrix 1 6 '(3 4 1 6 7 4)))
-
-(def two-row (make-matrix 3 7 '(3 5 4 6 3 5 7
-                                 4 3 5 7 8 5 4
-                                 4 3 6 7 5 7 8)))
-(def matrix (make-matrix 5 6 numbers))
-(def matrix-wrap (make-matrix 6 5 wrap))
-
 (defn getx [coord]
+  "Gets the x coordinate from a (x y) coord list"
   (first coord))
 
 (defn gety [coord]
+  "Gets the y coordinate from a (x y) coord list"
   (first (rest coord)))
 
 (defn get-at [matrix x y]
+  "Gets the value at position x,y in the matrix"
   (nth (nth matrix y) x))
 
 (defn move-up-right [matrix x y]
+  "returns the coordinate when move up-right from x,y.
+  Wraps if necessary"
 (if (= y 0)
   (list (+ x 1) (- (count matrix) 1))
   (list  (+ x 1)  (- y 1)) )
   )
 
 (defn move-right [x y]
+  "returns the coordinate when move right from x,y."
   (list (+ x 1) y))
 
 (defn move-down-right [matrix x y]
+  "returns the coordinate when move down-right from x,y.
+  Wraps if necessary"
   (if (= y (- (count matrix) 1))
     (list (+ x 1) 0)
     (list(+ x 1) (+ y 1)))
   )
 
 (defn sum-from-pos [matrix x y]
+  "Sums all values in row y in columns after column x"
   (cond
     (= x (dec (count (first matrix))))
     (get-at matrix x y)
@@ -66,6 +68,7 @@
   )
 
 (defn compare-three [a b c]
+  "Compares three values and returns 0,1,or 2 depending which is bigger"
   (let [val (min a b c)]
     (cond
       (= val a)
@@ -77,6 +80,7 @@
     ))
 
 (defn traverse
+  "moves through the matrix according to our algorithm"
   ([matrix x y]
    (cond
      (= x (dec (count (first matrix))))
@@ -94,23 +98,28 @@
                                     2 (traverse matrix (+ x 1) (gety down)))))
     )))
 
-(defn output [mess]
+(defn output [raw]
+  "Formats the raw output into something readable"
   {
    :path
-   (flatten mess)
+   (flatten raw)
    :total
-   (reduce + (flatten mess))
+   (reduce + (flatten raw))
    }
    )
 
 (defn all-paths [matrix]
+  "Generates the shortest path from each starting position in the matrix"
   (map
     #(output(traverse matrix 0 %))
     (range (count  matrix))
     ))
 
 (defn min-weight-path [matrix]
+  "Gets the path with lowest total from list of all paths"
   (apply min-key :total (all-paths matrix)))
 
 (defn path-finder [row col numbers]
+  "generates a matrix of dimensions row*col,
+  then returns the shortest path and cost of that path"
   (min-weight-path (make-matrix row col numbers)))

@@ -31,30 +31,39 @@
 (def matrix-wrap (make-matrix 5 6 wrap))
 
 (defn getx [coord]
+  "Gets the x coordinate from a (x y) coord list"
   (first coord))
 
 (defn gety [coord]
+  "Gets the y coordinate from a (x y) coord list"
   (first (rest coord)))
 
 (defn get-at [matrix x y]
+  "Gets the value at position x,y in the matrix"
   (nth (nth matrix y) x))
 
 (defn move-up-right [matrix x y]
+  "returns the coordinate when move up-right from x,y.
+  Wraps if necessary"
   (if (= y 0)
     (list (+ x 1) (- (count matrix) 1))
     (list  (+ x 1)  (- y 1)) )
   )
 
 (defn move-right [x y]
+  "returns the coordinate when move right from x,y."
   (list (+ x 1) y))
 
 (defn move-down-right [matrix x y]
+  "returns the coordinate when move down-right from x,y.
+  Wraps if necessary"
   (if (= y (- (count matrix) 1))
     (list (+ x 1) 0)
     (list(+ x 1) (+ y 1)))
   )
 
 (defn compare-three [a b c]
+  "Compares three values and returns 0,1,or 2 depending which is bigger"
   (let [val (min a b c)]
     (cond
       (= val a)
@@ -65,9 +74,8 @@
       2)
     ))
 
-
-
 (defn look-ahead [matrix x y num]
+  "Returns the value of the best path for the next num moves from cell x,y"
   (if (or (= num 0) (= x (dec (count (first matrix)))))
     (get-at matrix x y)
     (let [up (move-up-right matrix x y)
@@ -79,6 +87,7 @@
                   (look-ahead matrix (getx down) (gety down) (dec num))))))))
 
 (defn traverse
+  "moves through the matrix according to our algorithm"
   ([matrix x y num]
    (cond
      (= x (dec (count (first matrix))))
@@ -96,24 +105,29 @@
                                    2 (traverse matrix (inc x) (gety down) num)))))
      ))
 
-
-(defn output [path]
+(defn output [raw]
+  "Formats the raw output into something readable"
+  (println raw)
   {
    :path
-   (flatten path)
+   (flatten raw)
    :total
-   (reduce + (flatten path))
+   (reduce + (flatten raw))
    }
   )
 
-(defn all-paths [matrix num]
+(defn all-paths [matrix]
+  "Generates the shortest path from each starting position in the matrix"
   (map
-    #(output(traverse matrix 0 % num))
+    #(output(traverse matrix 0 %))
     (range (count  matrix))
     ))
 
-(defn min-weight-path [matrix num]
-  (apply min-key :total (all-paths matrix num)))
+(defn min-weight-path [matrix]
+  "Gets the path with lowest total from list of all paths"
+  (apply min-key :total (all-paths matrix)))
 
-(defn path-finder [row col numbers num]
-  (min-weight-path (make-matrix row col numbers) num))
+(defn path-finder [row col numbers]
+  "generates a matrix of dimensions row*col,
+  then returns the shortest path and cost of that path"
+  (min-weight-path (make-matrix row col numbers)))
