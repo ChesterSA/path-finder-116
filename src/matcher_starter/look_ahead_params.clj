@@ -20,6 +20,7 @@
              ))
 
 (defn make-matrix [row col numbers]
+  "forms a nested list with row*col dimensions"
   (cond
     (= 0 row)
     nil
@@ -129,7 +130,9 @@
 (defn path-finder [row col numbers num]
   "generates a matrix of dimensions row*col,
   then returns the shortest path and cost of that path"
-  (min-weight-path (make-matrix row col numbers) num))
+  (if (empty? numbers)
+    {:path nil :total nil}
+  (min-weight-path (make-matrix row col numbers) num)))
 
 (defn tester [tests]
   (mfor ['(?id ?test => ?res) tests]
@@ -153,7 +156,7 @@
                                      3 6 10 8 8 4 4 9 2 10 9 4 3 9 6 8 10 10 6) 3) => '{:path (1 1 4 1 3), :total 10}]
      [matrix-30-3-3 (path-finder 15 2 '(5 7 3 9 8 2 8 10 10 2 10 3 8 8 6 2 7 2 10 4 1 10 10 1 5 6 3 9 4 3) 3) => '{:path (1 1), :total 2}]
      [matrix-45-3 (path-finder 5 9 '(8 6 3 7 1 7 6 1 6 9 9 7 5 8 1 4 9 7 8 1 6 5 4 1 2 4 2 9 4 1 9 3 2 3 1 10 1 3 5 1 2 5 7 10 3) 3) => '{:path (1 3 1 1 1 1 2 1 2), :total 13}]
-     ;[empty-matrix (path-finder 0 0 '()) => 9]
+     [empty-matrix (path-finder 0 0 '()) => '{:path nil :total nil}]
      [matrix-1000-3 (path-finder 10 100 '(10 9 8 3 5 3 9 10 8 1 10 9 1 6 3 3 1 5 5 6 5 9 6 9 2 6 8 10 1 9 10 6 1 8 8 9 4 1 3 5 1 3 2 9 2 2 4 10 3 10 7 8 3 9 8 9 10 6 5 8 5 2 9 8 8 4
                                          10 7 10 8 10 6 9 5 2 9 8 9 8 10 5 3 1 9 5 2 3 6 8 7 6 7 4 10 4 3 5 6 6 4 7 3 8 7 5 6 10 2 1 6 3 8 9 8 1 5 4 2 3 6 3 7 6 1 1 1 7 4 7 2 10 1 3
                                          1 10 8 6 10 1 6 5 9 4 7 9 8 4 8 3 6 9 3 1 6 1 10 2 5 5 5 2 9 3 1 8 1 8 9 8 8 4 1 7 8 6 6 3 5 5 4 4 4 8 1 5 1 2 7 6 8 10 1 9 1 7 1 5 8 10 10 3

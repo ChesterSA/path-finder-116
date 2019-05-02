@@ -10,14 +10,8 @@
                 3 7 2 8 6 4
                 ))
 
-(def tom '(3 4 1 2 8 6 6
-           1 8 2 7 4 5 9
-           3 9 9 5 8 4 1
-           3 2 6 3 7 2 8
-           6 4 1 2 3 4 5
-                ))
-
 (defn make-matrix [row col numbers]
+  "forms a nested list with row*col dimensions"
   (cond
     (= 0 row)
     nil
@@ -28,29 +22,30 @@
 (def matrix (make-matrix 5 6 numbers))
 
 (defn get-at [matrix x y]
-  ;(println "get-at" x y)
+  "Gets the value at position x,y in the matrix"
   (nth (nth matrix y) x))
 
 (defn get-top-path [matrix x y]
-  ;(println "get-top" x y)
+  "returns the coordinate when move up-right from x,y.
+  Wraps if necessary"
   (if (<= y 0)
     (get-at matrix (+ x 1) (- (count matrix) 1))
     (get-at matrix (+ x 1) (- y 1)) )
   )
 
 (defn get-middle-path [matrix x y]
-  ;(println "get-middle" x y)
+  "returns the coordinate when move right from x,y."
   (get-at matrix (+ x 1) y))
 
 (defn get-bottom-path [matrix x y]
-  ;(println "get-bottom" x y)
+  "returns the coordinate when move down-right from x,y.
+  Wraps if necessary"
   (if (>= y (- (count matrix) 1))
     (get-at matrix (+ x 1) 0)
     (get-at matrix (+ x 1) (+ y 1)))
   )
 
 (defn get-possible-paths [current-x, current-y, matrix]
-  ;(println "get-poss-paths" current-x current-y matrix)
   ;Helper function that uses the path variable functions
   ;to build a list of possible routes.
   [(get-top-path matrix current-x current-y)
@@ -58,7 +53,7 @@
    (get-bottom-path matrix current-x current-y)])
 
 (defn compare-three [lis]
-  ;(println "compare-three" lis)
+  "Compares three values and returns 0,1,or 2 depending which is bigger"
   (let [val (apply min lis)]
     (cond
       (= val (first lis))
@@ -70,33 +65,35 @@
     ))
 
 (defn wrap [y matrix]
-  ;(println "wrap" y matrix)
+  "Works out if the y value has wrapped around the matrix and returns a new value if so"
   (cond
     (<= y 0) (- (count matrix) 1)
     (= (count matrix) y)  0
   :else y))
 
 (defn traverse
-  [matrix, current-x, current-y, total, path]  ;Iterates through each column, and decreases the
-  ;(println "traverse" current-x current-y path)
-  (if (= (+ 1 current-x) (count (first matrix)))                                                                                     ;row count each time.
+  "Iterates through each column, and decreases the
+  row count each time."
+  [matrix, current-x, current-y, total, path]
+  (if (= (+ 1 current-x) (count (first matrix)))
     {:path (reverse path) :total total}
 
     (let [values (get-possible-paths current-x,current-y, matrix)
           next-value (apply min values)
           move (compare-three values)
           next-y (wrap (+ current-y move) matrix)]
-      ;(println "next-y:" next-y  "move:" move)
       (recur matrix (+ current-x 1) next-y  (+ total next-value) (cons next-value path)))
     ))
 
 (defn get-start [y i lis]
-  ;(println "get-start" y i lis)
+  "Gets the y coordinate that the algorithm will start from"
   (if (= y (nth lis i))
     i
     (get-start y (inc i) lis)))
 
 (defn path-finder [row col numbers]
+  "generates a matrix of dimensions row*col,
+  then returns the shortest path and cost of that path"
   (if (empty? numbers)
     {:path nil :total nil}
   (let [matrix (make-matrix row col numbers)
