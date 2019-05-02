@@ -128,6 +128,7 @@
 
 (defn tester [tests]
   (mfor ['(?id ?test => ?res) tests]
+        (println (? id))
         (time (if-not (= (eval (? test)) (eval (? res)))
           (println (mout
                      '(FAILED ?id ?test => ?res))))))
