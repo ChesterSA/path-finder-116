@@ -2,12 +2,6 @@
   (:require [org.clojars.cognesence.breadth-search.core :refer :all]
             [org.clojars.cognesence.matcher.core :refer :all]
             [org.clojars.cognesence.ops-search.core :refer :all]))
-;sample input
-;(dijkstra-search 5 6  '(3 4 1 2 8 6
-;                        6 1 8 2 7 4
-;                        5 9 3 9 9 5
-;                        8 4 1 3 2 6
-;                        3 7 2 8 6 4))
 (def numbers '(3 4 1 2 8 6
                 6 1 8 2 7 4
                 5 9 3 9 9 5
@@ -29,7 +23,7 @@
   (nth (nth matrix y) x))
 
 (defn get-top-path [matrix x y]
-  (if (= y 0)
+  (if (<= y 0)
     (get-at matrix (+ x 1) (- (count matrix) 1))
     (get-at matrix (+ x 1) (- y 1)) )
   )
@@ -38,7 +32,7 @@
   (get-at matrix (+ x 1) y))
 
 (defn get-bottom-path [matrix x y]
-  (if (= y (- (count matrix) 1))
+  (if (>= y (- (count matrix) 1))
     (get-at matrix (+ x 1) 0)
     (get-at matrix (+ x 1) (+ y 1)))
   )
@@ -63,28 +57,25 @@
 
 (defn wrap [y matrix]
   (cond
-    (< y 0) (+ (count (matrix)) 1)
+    (<= y 0) (- (count matrix) 1)
     (= (count matrix) y) 0)
   :else y)
 
 (defn traverse
-  ([rows, columns, matrix]
-   (let [current-y (first (apply min-key first (make-matrix rows columns matrix)))                                                 ;Assigns current value and current position using
-         current-x 0]
-     (traverse matrix current-x 0 current-y (cons  current-y '() ))))
+  [matrix, current-x, current-y, total, path]                                        ;Iterates through each column, and decreases the
+  (if (= (+ 1 current-x) (count (first matrix)))                                                                                     ;row count each time.
+    {:total total :path (reverse path)}
 
-  ([matrix, current-x, current-y, total, path]                                        ;Iterates through each column, and decreases the
-   (if (= (+ 1 current-y) (count matrix))                                                                                     ;row count each time.
-     {:total total :path (reverse path)}
+    (let [values (get-possible-paths current-x,current-y, matrix)
+          next-value (apply min values)
+          move (compare-three values)
+          next-y (wrap (+ current-y move) matrix)]
 
-     (let [values (get-possible-paths current-x,current-y, matrix)
-           next-value (apply min values)
-           move (compare-three values)
-           next-y (wrap (+ current-y move) matrix)]
-
-       (recur matrix (+ current-x 1) next-y  (+ total next-value) (cons next-value path)))
-     ))
-  )
+      (recur matrix (+ current-x 1) next-y  (+ total next-value) (cons next-value path)))
+    ))
 
 (defn path-finder [row col numbers]
-  (traverse row col numbers))
+  (let [matrix (make-matrix row col numbers)
+        current-y (first (apply min-key first matrix))                                                 ;Assigns current value and current position using
+        current-x 0]
+    (traverse matrix current-x current-y 0 (cons  current-y '() ))))
