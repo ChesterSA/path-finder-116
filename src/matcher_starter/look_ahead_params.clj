@@ -12,13 +12,6 @@
                3 7 2 8 6 4
                 ))
 
-(def wrap '(3 4 1 2 8 6
-            6 1 8 2 7 4
-            5 9 3 9 9 5
-            8 4 1 3 2 6
-            3 7 2 1 2 3
-             ))
-
 (defn make-matrix [row col numbers]
   "forms a nested list with row*col dimensions"
   (cond
@@ -29,7 +22,6 @@
           (make-matrix (- row 1) col (drop col numbers)))))
   
 (def matrix (make-matrix 5 6 numbers))
-(def matrix-wrap (make-matrix 5 6 wrap))
 
 (defn getx [coord]
   "Gets the x coordinate from a (x y) coord list"

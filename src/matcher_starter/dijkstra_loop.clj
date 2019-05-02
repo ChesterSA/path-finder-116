@@ -109,14 +109,16 @@
   (partition 3 (flatten (make-edge-list matrix 0 0 (- (count (first matrix)) 2) (dec (count matrix))))))
 
 (defn map-vals [m f]
-
+"Apply function f to v, then places values in a map"
   (into {} (for [[k v] m]
              [k (f v)])))
 
 (defn remove-keys [m pred]
+  "Removes any keys that meet pred from map m"
   (select-keys m (filter (complement pred) (keys m))))
 
 (defn min2 [v1 v2]
+  "Returns whichever of v1 and v2 have a smaller first"
   (if (< (first v1) (first v2))
     v1
     v2))
