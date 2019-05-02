@@ -2,11 +2,19 @@
   (:require [org.clojars.cognesence.breadth-search.core :refer :all]
             [org.clojars.cognesence.matcher.core :refer :all]
             [org.clojars.cognesence.ops-search.core :refer :all]))
+
 (def numbers '(3 4 1 2 8 6
                 6 1 8 2 7 4
                 5 9 3 9 9 5
                 8 4 1 3 2 6
                 3 7 2 8 6 4
+                ))
+
+(def tom '(3 4 1 2 8 6 6
+           1 8 2 7 4 5 9
+           3 9 9 5 8 4 1
+           3 2 6 3 7 2 8
+           6 4 1 2 3 4 5
                 ))
 
 (defn make-matrix [row col numbers]
@@ -20,24 +28,29 @@
 (def matrix (make-matrix 5 6 numbers))
 
 (defn get-at [matrix x y]
+  ;(println "get-at" x y)
   (nth (nth matrix y) x))
 
 (defn get-top-path [matrix x y]
+  ;(println "get-top" x y)
   (if (<= y 0)
     (get-at matrix (+ x 1) (- (count matrix) 1))
     (get-at matrix (+ x 1) (- y 1)) )
   )
 
 (defn get-middle-path [matrix x y]
+  ;(println "get-middle" x y)
   (get-at matrix (+ x 1) y))
 
 (defn get-bottom-path [matrix x y]
+  ;(println "get-bottom" x y)
   (if (>= y (- (count matrix) 1))
     (get-at matrix (+ x 1) 0)
     (get-at matrix (+ x 1) (+ y 1)))
   )
 
 (defn get-possible-paths [current-x, current-y, matrix]
+  ;(println "get-poss-paths" current-x current-y matrix)
   ;Helper function that uses the path variable functions
   ;to build a list of possible routes.
   [(get-top-path matrix current-x current-y)
@@ -45,6 +58,7 @@
    (get-bottom-path matrix current-x current-y)])
 
 (defn compare-three [lis]
+  ;(println "compare-three" lis)
   (let [val (apply min lis)]
     (cond
       (= val (first lis))
@@ -56,36 +70,46 @@
     ))
 
 (defn wrap [y matrix]
+  ;(println "wrap" y matrix)
   (cond
     (<= y 0) (- (count matrix) 1)
-    (= (count matrix) y) 0)
-  :else y)
+    (= (count matrix) y)  0
+  :else y))
 
 (defn traverse
-  [matrix, current-x, current-y, total, path]                                        ;Iterates through each column, and decreases the
+  [matrix, current-x, current-y, total, path]  ;Iterates through each column, and decreases the
+  ;(println "traverse" current-x current-y path)
   (if (= (+ 1 current-x) (count (first matrix)))                                                                                     ;row count each time.
-    {:total total :path (reverse path)}
+    {:path (reverse path) :total total}
 
     (let [values (get-possible-paths current-x,current-y, matrix)
           next-value (apply min values)
           move (compare-three values)
           next-y (wrap (+ current-y move) matrix)]
-
+      ;(println "next-y:" next-y  "move:" move)
       (recur matrix (+ current-x 1) next-y  (+ total next-value) (cons next-value path)))
     ))
 
+(defn get-start [y i lis]
+  ;(println "get-start" y i lis)
+  (if (= y (nth lis i))
+    i
+    (get-start y (inc i) lis)))
+
 (defn path-finder [row col numbers]
   (let [matrix (make-matrix row col numbers)
-        current-y (first (apply min-key first matrix))                                                 ;Assigns current value and current position using
-        current-x 0]
-    (traverse matrix current-x current-y 0 (cons  current-y '() ))))
+        current-x 0
+        total (first (apply min-key first matrix))
+        current-y  (get-start total 0 (map first matrix))
+        ]                                             ;Assigns current value and current position usin
+    (traverse matrix current-x current-y 0 (cons current-y '() ))))
 
 (defn tester [tests]
   (mfor ['(?id ?test => ?res) tests]
         (println (? id))
         (time (if-not (= (eval (? test)) (eval (? res)))
                 (println (mout
-                           '(FAILED ?id ?test => ?res))))))
+                           '(FAILED ?id => ?res))))))
   'end-of-testing)
 
 (def matrix-tests
